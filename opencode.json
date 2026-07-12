@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    [
+      "./.opencode/plugin/advisor.ts",
+      {
+        "advisorModel": "opencode-go/kimi-k2.7-code",
+        "maxCallsPerSession": 20,
+        "transcriptCharBudget": 20000
+      }
+    ]
+  ]
+}
