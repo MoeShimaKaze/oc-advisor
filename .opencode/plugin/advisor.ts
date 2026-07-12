@@ -1,7 +1,11 @@
 import type { Plugin, ToolContext } from "@opencode-ai/plugin";
 import { tool } from "@opencode-ai/plugin";
 import type { Part, TextPart } from "@opencode-ai/sdk";
-import { parseAdvisorConfig } from "../../src/config";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { homedir } from "node:os";
+import type { AdvisorConfig } from "../../src/config";
+import { DEFAULT_ADVISOR_CONFIG, parseAdvisorConfig, parseAdvisorConfigJSON } from "../../src/config";
 import { parseModelID } from "../../src/model_id";
 import { RateLimiter } from "../../src/rate_limiter";
 import { extractTranscriptThenTruncate } from "../../src/transcript";
@@ -9,8 +13,30 @@ import { buildAdvisorPrompt } from "../../src/prompt";
 
 const BLOCKED_TITLE = "Advisor blocked";
 
-const advisor: Plugin = async ({ client }, options) => {
-  const config = parseAdvisorConfig(options);
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readConfigFile(directory: string): AdvisorConfig {
+  const candidates = [
+    join(directory, ".opencode", "oc-advisor.json"),
+    join(homedir(), ".config", "opencode", "oc-advisor.json"),
+  ];
+  for (const path of candidates) {
+    try {
+      const text = readFileSync(path, "utf-8");
+      return parseAdvisorConfigJSON(text);
+    } catch {
+      // try next
+    }
+  }
+  return DEFAULT_ADVISOR_CONFIG;
+}
+
+const advisor: Plugin = async ({ client, directory }, options) => {
+  const config: AdvisorConfig = isPlainObject(options)
+    ? parseAdvisorConfig(options)
+    : readConfigFile(directory);
   const { providerID, modelID } = parseModelID(config.advisorModel);
   const limiter = new RateLimiter(config.maxCallsPerSession);
 
@@ -40,7 +66,7 @@ const advisor: Plugin = async ({ client }, options) => {
           if (!acquired.allowed) {
             return {
               title: BLOCKED_TITLE,
-              output: `Advisor call limit (${config.maxCallsPerSession}) reached for this session. Raise "maxCallsPerSession" in the plugin options of opencode.json, or start a new session.`,
+              output: `Advisor call limit (${config.maxCallsPerSession}) reached for this session. Raise "maxCallsPerSession" in .opencode/oc-advisor.json, or start a new session.`,
             };
           }
 

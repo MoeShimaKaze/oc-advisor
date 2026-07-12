@@ -41,77 +41,130 @@ For design rationale, module boundaries, and internal mechanisms, see [ARCHITECT
 
 ## Installation
 
-### A. Use as a project-local setup (recommended)
+### A. From npm (recommended)
 
-Use this repository as your working directory and launch OpenCode directly.
+Install the package as a dependency of your OpenCode project:
 
 ```bash
-git clone <this-repo> ./my-project
-cd my-project
+bun add oc-advisor
+```
+
+Then register it in your `opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "oc-advisor"
+  ]
+}
+```
+
+That's it — the `ask_advisor` tool and `/advisor` command are now available. The default advisor model (`opencode-go/kimi-k2.7-code`) is used out of the box.
+
+To override options, create a file at `.opencode/oc-advisor.json` in your project root:
+
+```json
+{
+  "advisorModel": "opencode-go/glm-5.2",
+  "maxCallsPerSession": 30,
+  "transcriptCharBudget": 30000
+}
+```
+
+> OpenCode's `plugin` array in `opencode.json` only accepts **string package names**
+> (per the official plugin docs). That's why advisour options live in a side-file
+> rather than next to the plugin entry itself.
+
+### B. Global usage (personal)
+
+To use the plugin across all projects, install it globally and configure it in your global OpenCode config:
+
+```bash
+bun add --global oc-advisor
+```
+
+In `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "oc-advisor"
+  ]
+}
+```
+
+For global overrides, place the options file at `~/.config/opencode/oc-advisor.json`:
+
+```json
+{
+  "advisorModel": "opencode-go/glm-5.2"
+}
+```
+
+The plugin checks the project-local file first; if absent, it falls back to the global file; if neither is present, defaults apply.
+
+### C. Testing locally with `bun link` (pre-publish / development)
+
+If you want to use the plugin in another project before publishing to npm, or while iterating on the source, `bun link` lets you register the package globally from your clone and consume it from any other project as if it were installed.
+
+From the oc-advisor repository root (first time, and after each source edit):
+
+```bash
+bun install
+bun run build       # regenerates dist/plugin.js
+bun link            # registers "oc-advisor" globally
+```
+
+Then in the project where you want to use it:
+
+```bash
+cd /path/to/other-project
+bun link oc-advisor  # symlinks the global registration into node_modules
+```
+
+Configure `opencode.json` exactly as the npm case — note the **string form**, not a tuple:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "oc-advisor"
+  ]
+}
+```
+
+Optionally add `.opencode/oc-advisor.json` in the consumer project to override options. Launch OpenCode from that project. The plugin resolves through the symlink to your local `dist/plugin.js`.
+
+> **Tip:** The symlink points at the **built bundle**, not the TypeScript source. After editing files under `src/` or `.opencode/plugin/advisor.ts`, re-run `bun run build` in the oc-advisor repo to refresh `dist/plugin.js`. The symlink stays in place; no re-link needed.
+
+To unlink later:
+
+```bash
+bun unlink oc-advisor    # in the consumer project
+bun unlink               # in the oc-advisor repo (removes global registration)
+```
+
+### D. From source (for development / contributors)
+
+Clone this repository and run OpenCode directly from it. The local `opencode.json` references the unbundled TypeScript source via a relative path, so source edits take effect immediately:
+
+```bash
+git clone https://github.com/yuk1ty/oc-advisor.git
+cd oc-advisor
 bun install
 opencode
 ```
 
-`opencode.json` already registers the advisor plugin, so launching OpenCode enables both the `ask_advisor` tool and the `/advisor` command.
-
-### B. Embed into an existing project
-
-You only need three things from this repository:
-
-- `src/` (pure logic)
-- `.opencode/plugin/advisor.ts` (glue)
-- `.opencode/command/advisor.md` (command)
-
-Copy:
+To verify your build, the bundled artifact can be regenerated with:
 
 ```bash
-cp -r path/to/oc-advisor/src                ./src
-cp -r path/to/oc-advisor/.opencode/plugin    ./.opencode/plugin
-cp -r path/to/oc-advisor/.opencode/command   ./.opencode/command
+bun run build    # outputs dist/plugin.js
+bun test         # runs the unit tests on src/
 ```
 
-Add the advisor to the `plugin` array in your project's `opencode.json` using a relative path:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    ["./.opencode/plugin/advisor.ts", {
-      "advisorModel": "opencode-go/kimi-k2.7-code",
-      "maxCallsPerSession": 20,
-      "transcriptCharBudget": 20000
-    }]
-  ]
-}
-```
-
-OpenCode auto-discovers `.opencode/plugin/*.ts`. Even without an explicit entry in `opencode.json`, the plugin will load — but to **override the advisor model**, you must use the tuple form `[path, options]` in the `plugin` array (see below).
-
-Install dependencies:
-
-```bash
-bun add @opencode-ai/plugin @opencode-ai/sdk zod
-bun add -d @types/bun typescript
-```
-
-Restart OpenCode to apply.
-
-### C. Global usage (personal)
-
-To use across multiple projects, specify an absolute path in your global config at `~/.config/opencode/opencode.json`:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    ["/absolute/path/to/oc-advisor/.opencode/plugin/advisor.ts", {
-      "advisorModel": "opencode-go/kimi-k2.7-code"
-    }]
-  ]
-}
-```
-
-> **Note:** Since the plugin imports from `../../src/...`, the `src/` directory must be placed alongside the plugin.
+The published npm package is this bundled single file (`dist/plugin.js`) plus documentation. All `@opencode-ai/*` modules are externalized as peer dependencies, so they are resolved from the OpenCode runtime, not bundled.
 
 ---
 
@@ -129,17 +182,17 @@ The default is Kimi K2.7 Code, available under the OpenCode Go provider (confirm
 
 ### How to override
 
-Override via the second element (options object) of the plugin tuple in `opencode.json`:
+Create or edit `.opencode/oc-advisor.json` in your project root:
 
 ```json
-"plugin": [
-  ["./.opencode/plugin/advisor.ts", {
-    "advisorModel": "opencode-go/glm-5.2",
-    "maxCallsPerSession": 30,
-    "transcriptCharBudget": 30000
-  }]
-]
+{
+  "advisorModel": "opencode-go/glm-5.2",
+  "maxCallsPerSession": 30,
+  "transcriptCharBudget": 30000
+}
 ```
+
+For global use, place the file at `~/.config/opencode/oc-advisor.json`. Project-local settings take precedence over global; both take precedence over the built-in defaults.
 
 ### Example advisor models
 
@@ -152,7 +205,8 @@ Override via the second element (options object) of the plugin tuple in `opencod
 
 ### ⚠️ Important configuration notes
 
-- **Never place unknown top-level keys** (e.g. `advisor_model`) in `opencode.json`. OpenCode will fail to start with `ConfigInvalidError`. All configuration must go through the **plugin tuple options**.
+- OpenCode's `opencode.json` plugin array accepts **string package names only** — no tuple form `[name, options]`. Per the [official plugin docs](https://opencode.ai/docs/plugins). That's why advisour options live in a side-file (`.opencode/oc-advisor.json`) instead of beside the `plugin` entry.
+- The side-file is optional. If absent, defaults are used. If present but malformed (unparseable JSON, non-object root), the file is silently ignored and defaults apply.
 - `advisorModel` must use the `provider/model` format (e.g. `opencode-go/kimi-k2.7-code`). It is split on the first `/` into provider ID and model ID, so IDs like `lmstudio/google/gemma-3n-e4b` (where the model side contains `/`) are also supported.
 - An invalid `advisorModel` (no `/`, empty string, etc.) will cause an error at plugin load time.
 
@@ -166,14 +220,14 @@ Override via the second element (options object) of the plugin tuple in `opencod
 /advisor
 ```
 
-When executed, the executor model reads `opencode.json` and returns:
+When executed, the executor model reads `opencode.json` (for the plugin entry) and `.opencode/oc-advisor.json` (for the options) and returns:
 
-1. The current values of `advisorModel` / `maxCallsPerSession` / `transcriptCharBudget`
-2. How to change them (editing the `plugin` tuple options in `opencode.json`)
+1. The current values of `advisorModel` / `maxCallsPerSession` / `transcriptCharBudget` (from `.opencode/oc-advisor.json`, or defaults if the file doesn't exist)
+2. How to change them (edit `.opencode/oc-advisor.json`)
 3. Alternative model candidates
 4. A note clarifying that `/advisor` is for configuration only, not for direct advisor queries
 
-OpenCode commands cannot rewrite `opencode.json` directly (a command template is just a user message to the LLM). Therefore, the user follows the guidance and manually edits `opencode.json`. After editing, **OpenCode must be restarted** (config is loaded at startup and not hot-reloaded).
+OpenCode commands cannot rewrite config files directly (a command template is just a user message to the LLM). Therefore, the user follows the guidance and manually edits `.opencode/oc-advisor.json`. After editing, **OpenCode must be restarted** (config is loaded at startup and not hot-reloaded).
 
 ---
 
@@ -233,14 +287,14 @@ Character limit for the transcript sent to the advisor. Default: **20,000 charac
 
 ### Configuration example
 
+`.opencode/oc-advisor.json`:
+
 ```json
-"plugin": [
-  ["./.opencode/plugin/advisor.ts", {
-    "advisorModel": "opencode-go/glm-5.2",
-    "maxCallsPerSession": 30,
-    "transcriptCharBudget": 30000
-  }]
-]
+{
+  "advisorModel": "opencode-go/glm-5.2",
+  "maxCallsPerSession": 30,
+  "transcriptCharBudget": 30000
+}
 ```
 
 ---
@@ -297,9 +351,9 @@ Confirmed zero errors under strict mode.
 | Invalid advisor model ID | Verify that `advisorModel` is in `provider/model` format and not empty. Strings without `/` are rejected. |
 | Advisor call limit reached | `ask_advisor` output shows `Advisor call limit (20) reached`. Raise `maxCallsPerSession` or start a new session. |
 | Config changes not applied | Config is loaded at startup. **Restart OpenCode** after editing `opencode.json`. |
-| `ask_advisor` not in tool list | The `plugin` path in `opencode.json` is wrong, or `.opencode/plugin/advisor.ts` doesn't exist. Also check that `bun install` has been run. |
-| `Cannot find module '../../src/...'` | Ensure `src/` is placed correctly relative to the plugin path. The glue file is at `.opencode/plugin/advisor.ts` and refers to `../../src`. |
-| Advisor response leaks into the current session history | This was a bug in an older version. The current version runs advisor inference in a **throwaway child session** and never posts to `ctx.sessionID`. Verify that `.opencode/plugin/advisor.ts` calls `client.session.create({ body: { parentID } })` → `client.session.prompt({ path: { id: childID } })` → `client.session.delete()`. |
+| `ask_advisor` not in tool list | The `plugin` entry in `opencode.json` is wrong, or `oc-advisor` is not installed. Run `bun add oc-advisor` (or `bun add --global oc-advisor` for global use). Also confirm the package is resolvable from OpenCode's plugin resolution context. |
+| `Cannot find module 'oc-advisor'` | The package isn't installed in the location OpenCode resolves from. Try installing it under `.opencode/` (some setups expect plugin deps there): `cd .opencode && bun add oc-advisor`. |
+| Advisor response leaks into the current session history | This was a bug in an older version. The current version runs advisor inference in a **throwaway child session** and never posts to `ctx.sessionID`. Verify that the bundled plugin calls `client.session.create({ body: { parentID } })` → `client.session.prompt({ path: { id: childID } })` → `client.session.delete()`. |
 
 ---
 

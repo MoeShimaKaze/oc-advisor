@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { InvalidModelError } from "../src/model_id";
-import { DEFAULT_ADVISOR_CONFIG, parseAdvisorConfig } from "../src/config";
+import { DEFAULT_ADVISOR_CONFIG, parseAdvisorConfig, parseAdvisorConfigJSON } from "../src/config";
 
 describe("parseAdvisorConfig", () => {
   test("should return default config when options is undefined", () => {
@@ -66,5 +66,28 @@ describe("parseAdvisorConfig", () => {
     });
     expect(cfg.maxCallsPerSession).toBe(20);
     expect(cfg.transcriptCharBudget).toBe(20000);
+  });
+});
+
+describe("parseAdvisorConfigJSON", () => {
+  test("should parse a valid JSON object and override advisorModel", () => {
+    const text = JSON.stringify({ advisorModel: "anthropic/claude-opus-4-20250514" });
+    const cfg = parseAdvisorConfigJSON(text);
+    expect(cfg.advisorModel).toBe("anthropic/claude-opus-4-20250514");
+    expect(cfg.maxCallsPerSession).toBe(20);
+  });
+
+  test("should return default config on malformed JSON", () => {
+    expect(parseAdvisorConfigJSON("{not json")).toEqual(DEFAULT_ADVISOR_CONFIG);
+  });
+
+  test("should return default config on empty string", () => {
+    expect(parseAdvisorConfigJSON("")).toEqual(DEFAULT_ADVISOR_CONFIG);
+  });
+
+  test("should return default config on JSON that is not an object", () => {
+    expect(parseAdvisorConfigJSON("123")).toEqual(DEFAULT_ADVISOR_CONFIG);
+    expect(parseAdvisorConfigJSON("null")).toEqual(DEFAULT_ADVISOR_CONFIG);
+    expect(parseAdvisorConfigJSON("[]")).toEqual(DEFAULT_ADVISOR_CONFIG);
   });
 });

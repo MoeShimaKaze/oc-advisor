@@ -17,7 +17,7 @@ Functions with input → output semantics that involve no server I/O, state muta
 | File | Responsibility |
 |------|----------------|
 | `src/model_id.ts` | Splits a `provider/model` string into `{providerID, modelID}`. Throws `InvalidModelError` on invalid input. |
-| `src/config.ts` | `parseAdvisorConfig(opts?)` normalizes plugin options into a type-safe `AdvisorConfig`. Ignores unknown keys, validates types, falls back to defaults. |
+| `src/config.ts` | `parseAdvisorConfig(opts?)` normalizes plugin options into a type-safe `AdvisorConfig`. `parseAdvisorConfigJSON(text)` parses a JSON string and falls back to defaults on malformed input. Ignores unknown keys, validates types, falls back to defaults. |
 | `src/rate_limiter.ts` | `RateLimiter` class. Implements a two-phase commit (`tryAcquire` → `commit` / `refund`) to refund quota on I/O failure. State is held in `Map<string, number>`. |
 | `src/transcript.ts` | `extractTranscript` (message array → string), `truncate` (keep most recent N chars), and the composite `extractTranscriptThenTruncate`. |
 | `src/prompt.ts` | `buildAdvisorPrompt({transcript, question, context?})` → `{system, user}`. |
@@ -26,6 +26,7 @@ Functions with input → output semantics that involve no server I/O, state muta
 #### Actions (side effects) — `.opencode/plugin/advisor.ts`
 
 The thin glue layer that imports pure modules and wires them into OpenCode hooks. It performs:
+- `readFileSync()` of `.opencode/oc-advisor.json` and `~/.config/opencode/oc-advisor.json` (I/O — reads configuration at plugin init)
 - `client.session.messages()` (I/O — reads transcript)
 - `client.session.create()` / `client.session.prompt()` / `client.session.delete()` (I/O — spawns a throwaway child session, runs advisor inference, cleans up)
 - `RateLimiter` state changes (`tryAcquire` / `commit` / `refund`)
@@ -87,21 +88,37 @@ Invalid inputs (no `/`, empty provider or model, empty string) throw `InvalidMod
 
 ---
 
-## Configuration via Plugin Options Tuple
+## Configuration via Side-File
 
-OpenCode's config schema rejects unknown top-level keys with `ConfigInvalidError`. Therefore, all advisor configuration is passed through the **plugin options tuple** in `opencode.json`:
+OpenCode's `opencode.json` plugin array accepts **string package names only** (per the official plugin docs). The tuple form `[name, options]` is not supported for npm plugins. Therefore, advisor options live in a **side-file**:
+
+- Project-local: `.opencode/oc-advisor.json` (in the project root)
+- Global: `~/.config/opencode/oc-advisor.json`
+
+The plugin checks the project-local file first; if absent, it falls back to the global file; if neither is present, defaults apply. Malformed files (unparseable JSON, non-object root) are silently ignored.
+
+`opencode.json` itself only registers the plugin:
 
 ```json
-"plugin": [
-  ["./.opencode/plugin/advisor.ts", {
-    "advisorModel": "opencode-go/kimi-k2.7-code",
-    "maxCallsPerSession": 20,
-    "transcriptCharBudget": 20000
-  }]
-]
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "oc-advisor"
+  ]
+}
 ```
 
-This is the only supported configuration path. Unknown keys in the options object are silently ignored by `parseAdvisorConfig` (whitelist approach).
+And `.opencode/oc-advisor.json` holds the options:
+
+```json
+{
+  "advisorModel": "opencode-go/kimi-k2.7-code",
+  "maxCallsPerSession": 20,
+  "transcriptCharBudget": 20000
+}
+```
+
+File reading is an Action (it lives in `.opencode/plugin/advisor.ts`, not in `src/`). The pure parsing logic (`parseAdvisorConfigJSON`) is a Calculation and is unit-tested in `test/config.test.ts`.
 
 ---
 
@@ -109,6 +126,6 @@ This is the only supported configuration path. Unknown keys in the options objec
 
 The `/advisor` command is intentionally **not** a direct query to the advisor model. It only displays the current advisor configuration and guides the user on how to change it.
 
-Rationale: OpenCode commands are templates that become user messages to the LLM — they cannot rewrite `opencode.json` programmatically. Therefore, the command's role is safely limited to "show current settings + explain how to edit." The user follows the guidance and manually edits `opencode.json`, then restarts OpenCode.
+Rationale: OpenCode commands are templates that become user messages to the LLM — they cannot rewrite config files programmatically. Therefore, the command's role is safely limited to "show current settings + explain how to edit." The user follows the guidance and manually edits `.opencode/oc-advisor.json`, then restarts OpenCode.
 
 The actual advisor query is performed exclusively by the `ask_advisor` tool, which the executor model calls autonomously when it needs strategic guidance.
