@@ -8,7 +8,7 @@
 | T02 | ✅ Completed | Coordinator (takeover) | 2026-10-07 14:05 +08:00 | 2026-10-07 18:39 +08:00 | None; verifier PASS | 1 |
 | T03 | ✅ Completed | task-executor + Coordinator fix | 2026-10-07 18:42 +08:00 | 2026-10-07 18:55 +08:00 | None; verifier PASS after metadata fix | 1 |
 | T04 | ✅ Completed | task-executor | 2026-10-07 19:00 +08:00 | 2026-10-07 19:20 +08:00 | None; verifier PASS | 0 |
-| T05 | 🟡 Ready | Coordinator + Verifier | — | — | None; ready after T01–T04 | 0 |
+| T05 | 🔄 In Progress | Coordinator + Verifier | 2026-10-07 19:30 +08:00 | — | Local verification active; remote writes gated | 0 |
 
 ## Readiness Calculation
 
@@ -18,7 +18,7 @@
 | T02 | T01 Completed | Owns V2 plugin/command/test files | Completed |
 | T03 | T02 Completed | Owns package/build/config files | Completed |
 | T04 | None | Owns documentation files | Completed |
-| T05 | T01/T02/T03/T04 Completed | No active task | Yes |
+| T05 | T01/T02/T03/T04 Completed | No product-file ownership | Running |
 
 ## Milestones
 
