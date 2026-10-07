@@ -7,8 +7,8 @@
 | T01 | Pure V2 configuration and transcript core | Implementation | — | ✅ Completed | Coordinator (takeover) | `src/config.ts`, `src/model_id.ts`, `src/prompt.ts`, `src/transcript.ts`, `src/index.ts`, matching core tests | [T01](tasks/T01-pure-v2-core.md) |
 | T02 | V2 plugin runtime and effects | Implementation | T01 | ✅ Completed | Coordinator (takeover) | `.opencode/plugins/advisor.ts`, delete old plugin/command, `test/plugin.test.ts` | [T02](tasks/T02-v2-plugin-runtime.md) |
 | T03 | Package, build, and local discovery | Implementation | T02 | ✅ Completed | task-executor + Coordinator fix | `package.json`, `bun.lock`, `opencode.json`, package assertions | [T03](tasks/T03-package-build.md) |
-| T04 | V2 instructions and documentation | Documentation | — | 🔄 In Progress | task-executor | `AGENTS.md`, `README.md`, `ARCHITECTURE.md` | [T04](tasks/T04-v2-docs.md) |
-| T05 | Independent verification and GitHub release | Verification/Release | T01, T02, T03, T04 | ⏳ Pending | Coordinator + Verifier | No product files; isolated evidence, authorized target repository release operations | [T05](tasks/T05-verification-release.md) |
+| T04 | V2 instructions and documentation | Documentation | — | ✅ Completed | task-executor | `AGENTS.md`, `README.md`, `ARCHITECTURE.md` | [T04](tasks/T04-v2-docs.md) |
+| T05 | Independent verification and GitHub release | Verification/Release | T01, T02, T03, T04 | 🟡 Ready | Coordinator + Verifier | No product files; isolated evidence, authorized target repository release operations | [T05](tasks/T05-verification-release.md) |
 
 ## Status Legend
 
