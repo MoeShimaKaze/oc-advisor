@@ -4,7 +4,7 @@
 
 | Task | Status | Responsible Agent | Started | Completed | Blocker | Retries |
 | --- | --- | --- | --- | --- | --- | --- |
-| T01 | 🟡 Ready | task-executor | — | — | None | 0 |
+| T01 | 🔄 In Progress | task-executor | 2026-10-07 13:53 +08:00 | — | None | 0 |
 | T02 | ⏳ Pending | Unassigned | — | — | Waiting for T01 | 0 |
 | T03 | ⏳ Pending | Unassigned | — | — | Waiting for T02 | 0 |
 | T04 | ⏳ Pending | Unassigned | — | — | None | 0 |
@@ -14,7 +14,7 @@
 
 | Task | Direct dependencies | File conflict with active task | Can start now |
 | --- | --- | --- | --- |
-| T01 | None | No active task | Yes, Ready |
+| T01 | None | Owns core source/tests | Running |
 | T02 | T01 Pending | No active task | No |
 | T03 | T02 Pending | No active task | No |
 | T04 | None | No active task | Yes, mark Ready when dispatched |
@@ -35,7 +35,7 @@
 
 ## Active File Ownership
 
-- None. No implementation Task is active.
+- T01 (`task-executor`): `src/config.ts`, `src/model_id.ts`, `src/prompt.ts`, `src/transcript.ts`, and their matching core tests.
 
 ## Release Authorization and Guardrails
 
