@@ -14,6 +14,9 @@ type PackageJson = {
   readonly peerDependenciesMeta?: Readonly<
     Record<string, { readonly optional?: boolean }>
   >;
+  readonly homepage?: string;
+  readonly repository?: { readonly type?: string; readonly url?: string };
+  readonly bugs?: { readonly url?: string };
 };
 
 type Lockfile = {
@@ -105,5 +108,24 @@ describe("project config (T03)", () => {
   test("opencode.json contains only $schema", () => {
     expect(Object.keys(opencodeConfig)).toEqual(["$schema"]);
     expect(opencodeConfig["$schema"]).toBe("https://opencode.ai/config.json");
+  });
+});
+
+describe("repository metadata (T03 fix 1)", () => {
+  test("homepage points at the authorized target repo", () => {
+    expect(pkg.homepage).toBe("https://github.com/MoeShimaKaze/oc-advisor");
+  });
+
+  test("repository url points at the authorized target repo", () => {
+    expect(pkg.repository?.type).toBe("git");
+    expect(pkg.repository?.url).toBe(
+      "git+https://github.com/MoeShimaKaze/oc-advisor.git",
+    );
+  });
+
+  test("bugs url points at the authorized target repo issues", () => {
+    expect(pkg.bugs?.url).toBe(
+      "https://github.com/MoeShimaKaze/oc-advisor/issues",
+    );
   });
 });

@@ -4,13 +4,13 @@
   "description": "OpenCode plugin that lets a fast executor model consult a smarter advisor model for strategic advice when stuck.",
   "license": "MIT",
   "author": "yuk1ty <yuk1ty@users.noreply.github.com>",
-  "homepage": "https://github.com/yuk1ty/oc-advisor",
+  "homepage": "https://github.com/MoeShimaKaze/oc-advisor",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yuk1ty/oc-advisor.git"
+    "url": "git+https://github.com/MoeShimaKaze/oc-advisor.git"
   },
   "bugs": {
-    "url": "https://github.com/yuk1ty/oc-advisor/issues"
+    "url": "https://github.com/MoeShimaKaze/oc-advisor/issues"
   },
   "keywords": [
     "opencode",
