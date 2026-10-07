@@ -45,12 +45,3 @@ export function parseAdvisorConfig(opts?: unknown): AdvisorConfig {
     transcriptCharBudget: pickPositiveNumber(opts.transcriptCharBudget, DEFAULT_ADVISOR_CONFIG.transcriptCharBudget),
   };
 }
-
-export function parseAdvisorConfigJSON(text: string): AdvisorConfig {
-  try {
-    const parsed: unknown = JSON.parse(text);
-    return parseAdvisorConfig(parsed);
-  } catch {
-    return DEFAULT_ADVISOR_CONFIG;
-  }
-}

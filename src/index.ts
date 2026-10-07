@@ -14,12 +14,10 @@ export {
   truncate,
   extractTranscriptThenTruncate,
   type TranscriptMessage,
-  type TranscriptPart,
-  type TextPart,
+  type TranscriptContent,
 } from "./transcript";
 export {
   ADVISOR_SYSTEM_PROMPT,
   buildAdvisorPrompt,
   type AdvisorPromptInput,
-  type AdvisorPromptOutput,
 } from "./prompt";

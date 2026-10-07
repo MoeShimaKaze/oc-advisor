@@ -10,7 +10,7 @@ export class InvalidModelError extends Error {
 
 export type ModelID = {
   readonly providerID: string;
-  readonly modelID: string;
+  readonly id: string;
 };
 
 export function parseModelID(raw: string): ModelID {
@@ -20,6 +20,6 @@ export function parseModelID(raw: string): ModelID {
   }
   return {
     providerID: raw.slice(0, i),
-    modelID: raw.slice(i + 1),
+    id: raw.slice(i + 1),
   };
 }

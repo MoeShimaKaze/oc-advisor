@@ -2,17 +2,17 @@ import { describe, expect, test } from "bun:test";
 import { InvalidModelError, parseModelID } from "../src/model_id";
 
 describe("parseModelID", () => {
-  test("should parse provider/model into providerID and modelID when modelID has no slash", () => {
+  test("should parse provider/model into V2 providerID and id", () => {
     expect(parseModelID("opencode-go/kimi-k2.7-code")).toEqual({
       providerID: "opencode-go",
-      modelID: "kimi-k2.7-code",
+      id: "kimi-k2.7-code",
     });
   });
 
-  test("should split on first slash only so local providers with nested model ids parse correctly", () => {
+  test("should split on first slash only so nested model ids parse correctly", () => {
     expect(parseModelID("lmstudio/google/gemma-3n-e4b")).toEqual({
       providerID: "lmstudio",
-      modelID: "google/gemma-3n-e4b",
+      id: "google/gemma-3n-e4b",
     });
   });
 

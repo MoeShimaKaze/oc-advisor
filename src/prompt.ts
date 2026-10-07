@@ -13,19 +13,12 @@ export type AdvisorPromptInput = {
   readonly context?: string;
 };
 
-export type AdvisorPromptOutput = {
-  readonly system: string;
-  readonly user: string;
-};
-
-export function buildAdvisorPrompt(input: AdvisorPromptInput): AdvisorPromptOutput {
+export function buildAdvisorPrompt(input: AdvisorPromptInput): string {
   const sections = [
+    ADVISOR_SYSTEM_PROMPT,
     `## Current Session Transcript\n${input.transcript}`,
     `## Question\n${input.question}`,
     input.context ? `## Additional Context\n${input.context}` : "",
   ];
-  return {
-    system: ADVISOR_SYSTEM_PROMPT,
-    user: sections.filter((s) => s.length > 0).join("\n\n"),
-  };
+  return sections.filter((section) => section.length > 0).join("\n\n");
 }

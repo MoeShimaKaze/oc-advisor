@@ -6,35 +6,58 @@ import {
 } from "../src/transcript";
 
 describe("extractTranscript", () => {
-  test("should extract text parts from a message and join with role prefix", () => {
+  test("should extract user, system, and synthetic message text", () => {
+    const messages = [
+      { role: "user", text: "Hello" },
+      { role: "system", text: "System note" },
+      { role: "synthetic", text: "Injected context" },
+    ];
+
+    expect(extractTranscript(messages)).toBe(
+      "[user] Hello\n[system] System note\n[synthetic] Injected context",
+    );
+  });
+
+  test("should join multiple assistant text content items", () => {
     const messages = [
       {
-        info: { role: "user" as const },
-        parts: [
-          { type: "text" as const, text: "Hello" },
-          { type: "tool" as const, id: "x", name: "n", input: {} },
+        role: "assistant",
+        content: [
+          { type: "text", text: "First segment" },
+          { type: "text", text: "Second segment" },
         ],
       },
     ];
-    expect(extractTranscript(messages)).toBe("[user] Hello");
+
+    expect(extractTranscript(messages)).toBe("[assistant] First segment Second segment");
   });
 
-  test("should join multiple messages with newline", () => {
+  test("should ignore other message roles and non-text assistant content", () => {
     const messages = [
-      { info: { role: "user" as const }, parts: [{ type: "text" as const, text: "Hi" }] },
-      { info: { role: "assistant" as const }, parts: [{ type: "text" as const, text: "Hello" }] },
+      { role: "assistant", content: [{ type: "tool", name: "shell", text: "not visible" }] },
+      { role: "assistant", content: [{ type: "reasoning", text: "private reasoning" }] },
+      { role: "assistant", content: [{ type: "status", text: "working" }] },
+      { role: "tool", text: "tool result" },
+      { role: "reasoning", text: "private" },
+      { role: "shell", text: "command" },
+      { role: "status", text: "busy" },
+      { role: "other", text: "unknown" },
     ];
-    expect(extractTranscript(messages)).toBe("[user] Hi\n[assistant] Hello");
+
+    expect(extractTranscript(messages)).toBe("");
   });
 
-  test("should handle empty messages array producing empty transcript", () => {
+  test("should handle empty messages array", () => {
     expect(extractTranscript([])).toBe("");
   });
 
-  test("should skip messages with no text parts", () => {
+  test("should skip messages without visible text", () => {
     const messages = [
-      { info: { role: "user" as const }, parts: [{ type: "tool" as const, id: "x", name: "n", input: {} }] },
+      { role: "user", text: "" },
+      { role: "assistant", content: [] },
+      { role: "assistant", content: [{ type: "text", text: "" }] },
     ];
+
     expect(extractTranscript(messages)).toBe("");
   });
 });
@@ -49,11 +72,8 @@ describe("truncate", () => {
     expect(truncate("abcde", 100)).toBe("abcde");
   });
 
-  test("should return empty string when budget is 0", () => {
+  test("should return empty string when budget is not positive", () => {
     expect(truncate("abc", 0)).toBe("");
-  });
-
-  test("should return empty string when budget is negative", () => {
     expect(truncate("abc", -5)).toBe("");
   });
 
@@ -63,15 +83,15 @@ describe("truncate", () => {
 });
 
 describe("extractTranscriptThenTruncate", () => {
-  test("should extract then truncate in one call", () => {
+  test("should extract V2 messages then keep the tail within the budget", () => {
     const messages = [
-      { info: { role: "user" as const }, parts: [{ type: "text" as const, text: "AAAAAAAAAA" }] },
-      { info: { role: "assistant" as const }, parts: [{ type: "text" as const, text: "BBBBBBBBBB" }] },
-      { info: { role: "user" as const }, parts: [{ type: "text" as const, text: "CCCCCCCCCC" }] },
+      { role: "user", text: "AAAAAAAAAA" },
+      { role: "assistant", content: [{ type: "text", text: "BBBBBBBBBB" }] },
+      { role: "user", text: "CCCCCCCCCC" },
     ];
     const transcript = extractTranscript(messages);
-    const expected = truncate(transcript, 15);
-    expect(extractTranscriptThenTruncate(messages, 15)).toBe(expected);
+
+    expect(extractTranscriptThenTruncate(messages, 15)).toBe(truncate(transcript, 15));
   });
 
   test("should return empty string for empty messages with a budget", () => {

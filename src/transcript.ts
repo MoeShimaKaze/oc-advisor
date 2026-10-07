@@ -1,30 +1,38 @@
 export type TranscriptMessage = {
-  readonly info: {
-    readonly role: "user" | "assistant" | "system" | string;
-  };
-  readonly parts: ReadonlyArray<TranscriptPart>;
-};
-
-export type TranscriptPart = TextPart | NonTextPart;
-
-export type TextPart = {
-  readonly type: "text";
-  readonly text: string;
-};
-
-export type NonTextPart = {
-  readonly type: string;
+  readonly role: string;
+  readonly text?: string;
+  readonly content?: ReadonlyArray<TranscriptContent>;
   readonly [key: string]: unknown;
 };
 
+export type TranscriptContent = {
+  readonly type: string;
+  readonly text?: string;
+  readonly [key: string]: unknown;
+};
+
+function directText(message: TranscriptMessage): string {
+  const hasDirectTextRole =
+    message.role === "user" || message.role === "system" || message.role === "synthetic";
+  return hasDirectTextRole && typeof message.text === "string" ? message.text : "";
+}
+
+function assistantText(message: TranscriptMessage): string {
+  if (message.role !== "assistant" || message.content === undefined) return "";
+  return message.content
+    .filter(
+      (item): item is TranscriptContent & { readonly text: string } =>
+        item.type === "text" && typeof item.text === "string" && item.text.length > 0,
+    )
+    .map((item) => item.text)
+    .join(" ");
+}
+
 export function extractTranscript(messages: ReadonlyArray<TranscriptMessage>): string {
   return messages
-    .map((m) => {
-      const texts = m.parts
-        .filter((p): p is TextPart => p.type === "text")
-        .map((p) => p.text)
-        .join(" ");
-      return texts.length === 0 ? "" : `[${m.info.role}] ${texts}`;
+    .map((message) => {
+      const text = directText(message) || assistantText(message);
+      return text.length === 0 ? "" : `[${message.role}] ${text}`;
     })
     .filter((line) => line.length > 0)
     .join("\n");

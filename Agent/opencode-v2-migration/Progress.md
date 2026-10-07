@@ -4,7 +4,7 @@
 
 | Task | Status | Responsible Agent | Started | Completed | Blocker | Retries |
 | --- | --- | --- | --- | --- | --- | --- |
-| T01 | 🔄 In Progress | task-executor | 2026-10-07 13:53 +08:00 | — | None | 0 |
+| T01 | 🔄 In Progress | Coordinator (takeover) | 2026-10-07 13:53 +08:00 | — | Executor interrupted; takeover active | 1 |
 | T02 | ⏳ Pending | Unassigned | — | — | Waiting for T01 | 0 |
 | T03 | ⏳ Pending | Unassigned | — | — | Waiting for T02 | 0 |
 | T04 | ⏳ Pending | Unassigned | — | — | None | 0 |
@@ -32,10 +32,12 @@
 
 - Worktree creation was rejected twice by shell permission policy; verification confirmed that no partial worktree or feature branch exists.
 - Ruling (2026-10-07): the user explicitly authorized implementation in the current `main` working tree. Continue without isolation, preserving existing commits and the local-only research input.
+- T01 executor session `ses_eeb11c634ffemlzbDOtzlh15Bm` was interrupted before commit/report. Coordinator preserved its production diff in the ignored SDD workspace, restored production files, proved the retained tests RED (12 failures), and took over rather than re-dispatching.
+- T01 plan correction: `src/index.ts` is included for re-export alignment because the changed pure interfaces otherwise leave the package API uncompilable. Full repository typecheck remains expected to fail only in the V1 plugin entry that T02 deletes.
 
 ## Active File Ownership
 
-- T01 (`task-executor`): `src/config.ts`, `src/model_id.ts`, `src/prompt.ts`, `src/transcript.ts`, and their matching core tests.
+- T01 (Coordinator takeover): `src/config.ts`, `src/model_id.ts`, `src/prompt.ts`, `src/transcript.ts`, `src/index.ts`, and their matching core tests.
 
 ## Release Authorization and Guardrails
 

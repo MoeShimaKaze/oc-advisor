@@ -7,7 +7,7 @@
 - **Business goal:** Make configuration, model IDs, prompt composition, and transcript extraction match V2 using deterministic pure functions.
 - **Current behavior:** `src/config.ts` has JSON side-file parsing; model output uses `modelID`; transcript expects V1 `{info, parts}`; prompt builder returns separate system/user strings.
 - **Target behavior:** Options-only parser; V2 model `{providerID,id}`; V2 context message extraction; one composed prompt preserving existing prompt content.
-- **Allowed files:** `src/config.ts`, `src/model_id.ts`, `src/prompt.ts`, `src/transcript.ts`, matching existing unit tests in `test/`.
+- **Allowed files:** `src/config.ts`, `src/model_id.ts`, `src/prompt.ts`, `src/transcript.ts`, `src/index.ts` (re-export alignment only), matching existing unit tests in `test/`.
 - **Forbidden:** `.opencode/**`, package metadata/lockfile, docs, unrelated tests, task/progress/spec files, side-file additions, prompt redesign.
 - **Inputs:** Approved V2 spec and plan; `AGENTS.md`; installed baseline Bun/TypeScript.
 - **Outputs:** Updated pure modules and focused TDD tests; no OpenCode effects in `src/`.
