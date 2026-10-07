@@ -4,7 +4,7 @@
 
 | Task | Status | Responsible Agent | Started | Completed | Blocker | Retries |
 | --- | --- | --- | --- | --- | --- | --- |
-| T01 | ⏳ Pending | Unassigned | — | — | None | 0 |
+| T01 | 🟡 Ready | task-executor | — | — | None | 0 |
 | T02 | ⏳ Pending | Unassigned | — | — | Waiting for T01 | 0 |
 | T03 | ⏳ Pending | Unassigned | — | — | Waiting for T02 | 0 |
 | T04 | ⏳ Pending | Unassigned | — | — | None | 0 |
@@ -14,7 +14,7 @@
 
 | Task | Direct dependencies | File conflict with active task | Can start now |
 | --- | --- | --- | --- |
-| T01 | None | No active task | Yes, mark Ready when dispatched |
+| T01 | None | No active task | Yes, Ready |
 | T02 | T01 Pending | No active task | No |
 | T03 | T02 Pending | No active task | No |
 | T04 | None | No active task | Yes, mark Ready when dispatched |
