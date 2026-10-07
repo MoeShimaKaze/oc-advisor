@@ -4,8 +4,8 @@
 
 | Task | Status | Responsible Agent | Started | Completed | Blocker | Retries |
 | --- | --- | --- | --- | --- | --- | --- |
-| T01 | 🔄 In Progress | Coordinator (takeover) | 2026-10-07 13:53 +08:00 | — | Executor interrupted; takeover active | 1 |
-| T02 | ⏳ Pending | Unassigned | — | — | Waiting for T01 | 0 |
+| T01 | ✅ Completed | Coordinator (takeover) | 2026-10-07 13:53 +08:00 | 2026-10-07 14:02 +08:00 | None; verifier PASS | 1 |
+| T02 | 🟡 Ready | task-executor | — | — | None | 0 |
 | T03 | ⏳ Pending | Unassigned | — | — | Waiting for T02 | 0 |
 | T04 | ⏳ Pending | Unassigned | — | — | None | 0 |
 | T05 | ⏳ Pending | Coordinator + Verifier | — | — | Waiting for T01–T04 | 0 |
@@ -15,7 +15,7 @@
 | Task | Direct dependencies | File conflict with active task | Can start now |
 | --- | --- | --- | --- |
 | T01 | None | Owns core source/tests | Running |
-| T02 | T01 Pending | No active task | No |
+| T02 | T01 Completed | No active task | Yes, Ready |
 | T03 | T02 Pending | No active task | No |
 | T04 | None | No active task | Yes, mark Ready when dispatched |
 | T05 | T01/T02/T03/T04 Pending | No active task | No |
@@ -37,7 +37,11 @@
 
 ## Active File Ownership
 
-- T01 (Coordinator takeover): `src/config.ts`, `src/model_id.ts`, `src/prompt.ts`, `src/transcript.ts`, `src/index.ts`, and their matching core tests.
+- None. T01 completed and no implementation Task is active.
+
+## Task completion evidence
+
+- T01: completed at commit `a674e5e`; focused tests 31/31, full `bun test` 43/43; independent verifier PASS. Low findings V-001 deferred to final review; V-002 accepted as justified re-export alignment.
 
 ## Release Authorization and Guardrails
 
