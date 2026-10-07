@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | T01 | ✅ Completed | Coordinator (takeover) | 2026-10-07 13:53 +08:00 | 2026-10-07 14:02 +08:00 | None; verifier PASS | 1 |
 | T02 | ✅ Completed | Coordinator (takeover) | 2026-10-07 14:05 +08:00 | 2026-10-07 18:39 +08:00 | None; verifier PASS | 1 |
-| T03 | 🟡 Ready | Unassigned | — | — | None | 0 |
+| T03 | 🔄 In Progress | task-executor | 2026-10-07 18:42 +08:00 | — | None | 0 |
 | T04 | ⏳ Pending | Unassigned | — | — | None | 0 |
 | T05 | ⏳ Pending | Coordinator + Verifier | — | — | Waiting for T01–T04 | 0 |
 
@@ -16,7 +16,7 @@
 | --- | --- | --- | --- |
 | T01 | None | Owns core source/tests | Running |
 | T02 | T01 Completed | Owns V2 plugin/command/test files | Completed |
-| T03 | T02 Completed | No active task | Yes |
+| T03 | T02 Completed | Owns package/build/config files | Running |
 | T04 | None | No active task | Yes, mark Ready when dispatched |
 | T05 | T01/T02/T03/T04 Pending | No active task | No |
 
@@ -39,7 +39,7 @@
 
 ## Active File Ownership
 
-- No active implementation ownership; T02 released its files after verifier PASS.
+- T03 (`task-executor`): `package.json`, `bun.lock`, `opencode.json`, narrowly scoped package assertions.
 
 ## Task completion evidence
 
