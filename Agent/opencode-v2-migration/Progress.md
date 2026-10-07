@@ -6,8 +6,8 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | T01 | ✅ Completed | Coordinator (takeover) | 2026-10-07 13:53 +08:00 | 2026-10-07 14:02 +08:00 | None; verifier PASS | 1 |
 | T02 | ✅ Completed | Coordinator (takeover) | 2026-10-07 14:05 +08:00 | 2026-10-07 18:39 +08:00 | None; verifier PASS | 1 |
-| T03 | 🔄 In Progress | task-executor | 2026-10-07 18:42 +08:00 | — | None | 0 |
-| T04 | ⏳ Pending | Unassigned | — | — | None | 0 |
+| T03 | ✅ Completed | task-executor + Coordinator fix | 2026-10-07 18:42 +08:00 | 2026-10-07 18:55 +08:00 | None; verifier PASS after metadata fix | 1 |
+| T04 | 🟡 Ready | Unassigned | — | — | None | 0 |
 | T05 | ⏳ Pending | Coordinator + Verifier | — | — | Waiting for T01–T04 | 0 |
 
 ## Readiness Calculation
@@ -16,7 +16,7 @@
 | --- | --- | --- | --- |
 | T01 | None | Owns core source/tests | Running |
 | T02 | T01 Completed | Owns V2 plugin/command/test files | Completed |
-| T03 | T02 Completed | Owns package/build/config files | Running |
+| T03 | T02 Completed | Owns package/build/config files | Completed |
 | T04 | None | No active task | Yes, mark Ready when dispatched |
 | T05 | T01/T02/T03/T04 Pending | No active task | No |
 
@@ -44,7 +44,8 @@
 ## Task completion evidence
 
 - T01: completed at commit `a674e5e`; focused tests 31/31, full `bun test` 43/43; independent verifier PASS. Low findings V-001 deferred to final review; V-002 accepted as justified re-export alignment.
-- T02: completed at commit `c613df4`; plugin tests 7/7, full `bun test` 50/50, `bun run typecheck` passed; independent verifier PASS. T03 owns stale package/build/config findings.
+- T02: completed at commit `c613df4`; plugin tests 7/7, full `bun test` 50/50, `bun run typecheck` passed; independent verifier PASS. T03 owned stale package/build/config findings.
+- T03: completed at commits `ab74562..e46c8e5`; package tests 13/13, full `bun test` 63/63, `bun run typecheck`, build, prepare, and frozen install passed; scoped re-review PASS after target repository metadata fix.
 
 ## Release Authorization and Guardrails
 
