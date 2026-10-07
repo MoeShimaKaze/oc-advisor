@@ -5,7 +5,7 @@
 | Task | Status | Responsible Agent | Started | Completed | Blocker | Retries |
 | --- | --- | --- | --- | --- | --- | --- |
 | T01 | ✅ Completed | Coordinator (takeover) | 2026-10-07 13:53 +08:00 | 2026-10-07 14:02 +08:00 | None; verifier PASS | 1 |
-| T02 | 🟡 Ready | task-executor | — | — | None | 0 |
+| T02 | 🔄 In Progress | task-executor | 2026-10-07 14:05 +08:00 | — | None | 0 |
 | T03 | ⏳ Pending | Unassigned | — | — | Waiting for T02 | 0 |
 | T04 | ⏳ Pending | Unassigned | — | — | None | 0 |
 | T05 | ⏳ Pending | Coordinator + Verifier | — | — | Waiting for T01–T04 | 0 |
@@ -15,7 +15,7 @@
 | Task | Direct dependencies | File conflict with active task | Can start now |
 | --- | --- | --- | --- |
 | T01 | None | Owns core source/tests | Running |
-| T02 | T01 Completed | No active task | Yes, Ready |
+| T02 | T01 Completed | Owns V2 plugin/command/test files | Running |
 | T03 | T02 Pending | No active task | No |
 | T04 | None | No active task | Yes, mark Ready when dispatched |
 | T05 | T01/T02/T03/T04 Pending | No active task | No |
@@ -37,7 +37,7 @@
 
 ## Active File Ownership
 
-- None. T01 completed and no implementation Task is active.
+- T02 (`task-executor`): `.opencode/plugins/advisor.ts`, deletion of `.opencode/plugin/advisor.ts` and `.opencode/command/advisor.md`, `test/plugin.test.ts`.
 
 ## Task completion evidence
 
