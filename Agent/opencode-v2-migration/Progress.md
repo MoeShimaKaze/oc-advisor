@@ -5,7 +5,7 @@
 | Task | Status | Responsible Agent | Started | Completed | Blocker | Retries |
 | --- | --- | --- | --- | --- | --- | --- |
 | T01 | ✅ Completed | Coordinator (takeover) | 2026-10-07 13:53 +08:00 | 2026-10-07 14:02 +08:00 | None; verifier PASS | 1 |
-| T02 | 🔄 In Progress | task-executor | 2026-10-07 14:05 +08:00 | — | None | 0 |
+| T02 | 🔄 In Progress | Coordinator (takeover) | 2026-10-07 14:05 +08:00 | — | Executor step limit; takeover active | 1 |
 | T03 | ⏳ Pending | Unassigned | — | — | Waiting for T02 | 0 |
 | T04 | ⏳ Pending | Unassigned | — | — | None | 0 |
 | T05 | ⏳ Pending | Coordinator + Verifier | — | — | Waiting for T01–T04 | 0 |
@@ -34,10 +34,11 @@
 - Ruling (2026-10-07): the user explicitly authorized implementation in the current `main` working tree. Continue without isolation, preserving existing commits and the local-only research input.
 - T01 executor session `ses_eeb11c634ffemlzbDOtzlh15Bm` was interrupted before commit/report. Coordinator preserved its production diff in the ignored SDD workspace, restored production files, proved the retained tests RED (12 failures), and took over rather than re-dispatching.
 - T01 plan correction: `src/index.ts` is included for re-export alignment because the changed pure interfaces otherwise leave the package API uncompilable. Full repository typecheck remains expected to fail only in the V1 plugin entry that T02 deletes.
+- T02 executor reached its step limit after type investigation with zero code changes and zero commits. Coordinator verified the clean product state and took over without re-dispatching.
 
 ## Active File Ownership
 
-- T02 (`task-executor`): `.opencode/plugins/advisor.ts`, deletion of `.opencode/plugin/advisor.ts` and `.opencode/command/advisor.md`, `test/plugin.test.ts`.
+- T02 (Coordinator takeover): `.opencode/plugins/advisor.ts`, deletion of `.opencode/plugin/advisor.ts` and `.opencode/command/advisor.md`, `test/plugin.test.ts`.
 
 ## Task completion evidence
 
