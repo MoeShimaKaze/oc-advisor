@@ -7,7 +7,7 @@
 | T01 | ✅ Completed | Coordinator (takeover) | 2026-10-07 13:53 +08:00 | 2026-10-07 14:02 +08:00 | None; verifier PASS | 1 |
 | T02 | ✅ Completed | Coordinator (takeover) | 2026-10-07 14:05 +08:00 | 2026-10-07 18:39 +08:00 | None; verifier PASS | 1 |
 | T03 | ✅ Completed | task-executor + Coordinator fix | 2026-10-07 18:42 +08:00 | 2026-10-07 18:55 +08:00 | None; verifier PASS after metadata fix | 1 |
-| T04 | 🟡 Ready | Unassigned | — | — | None | 0 |
+| T04 | 🔄 In Progress | task-executor | 2026-10-07 19:00 +08:00 | — | None | 0 |
 | T05 | ⏳ Pending | Coordinator + Verifier | — | — | Waiting for T01–T04 | 0 |
 
 ## Readiness Calculation
@@ -17,7 +17,7 @@
 | T01 | None | Owns core source/tests | Running |
 | T02 | T01 Completed | Owns V2 plugin/command/test files | Completed |
 | T03 | T02 Completed | Owns package/build/config files | Completed |
-| T04 | None | No active task | Yes, mark Ready when dispatched |
+| T04 | None | Owns documentation files | Running |
 | T05 | T01/T02/T03/T04 Pending | No active task | No |
 
 ## Milestones
@@ -39,7 +39,7 @@
 
 ## Active File Ownership
 
-- T03 (`task-executor`): `package.json`, `bun.lock`, `opencode.json`, narrowly scoped package assertions.
+- T04 (`task-executor`): `AGENTS.md`, `README.md`, `ARCHITECTURE.md`.
 
 ## Task completion evidence
 
